@@ -3,16 +3,17 @@ import http from 'http'
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import router from './router';
 const app = express();
+import dotenv from 'dotenv';
+dotenv.config();
 
 const MONGO_URL = process.env.MONGO_URL;
 const PORT = process.env.PORT;
 const DATABASE_NAME = process.env.DATABASE_NAME;
-
+console.log(MONGO_URL);
 app.use(cors({
     credentials: true,
 }));
