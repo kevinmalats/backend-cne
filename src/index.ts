@@ -8,10 +8,10 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import router from './router';
 const app = express();
-const result = dotenv.config();
-const MONGO_URL = result.parsed?.MONGO_URL;
-const PORT = result.parsed?.PORT;
-const DATABASE_NAME = result.parsed?.DATABASE_NAME;
+
+const MONGO_URL = process.env.MONGO_URL;
+const PORT = process.env.PORT;
+const DATABASE_NAME = process.env.DATABASE_NAME;
 
 app.use(cors({
     credentials: true,
@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
-    console.log('Server is running in http://localhost:/'+result.parsed?.PORT);
+    console.log('Server is running in http://localhost:/'+PORT);
 });
 
 
