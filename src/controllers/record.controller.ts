@@ -9,34 +9,19 @@ import { getDeskById} from "../db/desk";
 import { getZoneById} from "../db/zone";
 import {getProvinceByIDCanton} from "../db/province";
 import {generalEnum} from "../repository/generalEnum";
+import {TotalCount} from "../types/general";
+
+const initialValues: TotalCount = {totalVotes: 0, totalAbsenteeism: 0, totalVotesBlanks: 0, totalVotesNull: 0,
+    firstCandidate: {name:"",totalVotes:0},secondCandidate: {name:"",totalVotes:0}};
+
+//*** Save Functions ***//
 
 export const registerRecord = async (req: express.Request, res: express.Response) => {
    const obj: RecordMongo = req.body;
    console.log(obj.idDesk);
 
     try{
-        const desk = await getDeskById(obj.idDesk)
-        if(isNil(desk)){
-            return res.status(400).json({ message: ERRORS.E03 });
-        }
-        console.log(desk.idZone);
-        const zone = await getZoneById(desk.idZone);
-        if(isNil(zone)){
-            return res.status(400).json({ message: ERRORS.E04 });
-        }
-        console.log(zone.idCanton);
-        const province:any[] = await getProvinceByIDCanton(zone.idCanton);
-       // console.log(province);
-        if(isEmpty(province)){
-            return res.status(400).json({ message: ERRORS.E05 });
-        }
-        console.log(province[0]._id.toString());
-        obj.idProvince = province[0]._id.toString();
-        obj.idZone = desk.idZone;
-        obj.idCanton = zone.idCanton;
-        obj.status = statesRecordEnum.PENDING;
-        obj.code = "123456789";
-        obj.isCountFast = isNil(obj.isCountFast) ? false : obj.isCountFast;
+       await logicSaveRecord(obj);
        //console.log(obj);
        const recordExist = await _validationRecord(obj);
        if(!isNil(recordExist)) {
@@ -53,6 +38,52 @@ export const registerRecord = async (req: express.Request, res: express.Response
     }
 }
 
+const logicSaveRecord = async (obj: RecordMongo) => {
+    const desk = await getDeskById(obj.idDesk)
+    if(isNil(desk)){
+        throw new Error(ERRORS.E03);
+    }
+    console.log(desk.idZone);
+    const zone = await getZoneById(desk.idZone);
+    if(isNil(zone)){
+        throw new Error(ERRORS.E04);
+    }
+    const province:any[] = await getProvinceByIDCanton(zone.idCanton);
+    if(isEmpty(province)){
+        throw new Error(ERRORS.E05);
+    }
+    obj.idProvince = province[0]._id.toString();
+    obj.idZone = desk.idZone;
+    obj.idCanton = zone.idCanton;
+    obj.status = statesRecordEnum.PENDING;
+    obj.code = "123456789";
+    obj.isCountFast = isNil(obj.isCountFast) ? false : obj.isCountFast;
+}
+
+//*** Get Functions ***//
+
+export const countAllCountryRecords = async (req: express.Request, res: express.Response) => {
+    console.log("req"+req.params.id);
+
+    try{
+        let records : RecordMongo[]
+        records = await validateParamCount(req.params.id);
+
+        console.log(records.map(record => record.idProvince));
+        const totalVotes = records.reduce((acc, record) => {
+            return {
+                ...buildCountTotal(acc, record)
+            }
+        }, initialValues);
+        console.log(totalVotes);
+        return res.status(200).json(totalVotes).end();
+
+    }catch(error){
+        return res.status(400).json({ message: error.message });
+    }
+}
+
+
 export const getRecords = async (req: express.Request, res: express.Response) => {
     try{
         const records = await getRecordById(req.body.id);
@@ -61,6 +92,8 @@ export const getRecords = async (req: express.Request, res: express.Response) =>
         return res.status(400).json({ message: error.message });
     }
 }
+
+//*** Update Functions ***//
 
 export const updateRecord = async (req: express.Request, res: express.Response) => {
     const obj: RecordMongo = req.body;
@@ -82,23 +115,12 @@ export const updateRecord = async (req: express.Request, res: express.Response) 
 }
 
 const update = async (record: RecordMongo, id:string):Promise<boolean>  => {
-    console.log("update");
-    console.log(record.id);
     if(!validateSumVotes(record))
         throw new Error(ERRORS.E08);
     try{
         const recordMongo = await getRecordById(id);
         console.log(recordMongo);
-        recordMongo.status = record.status;
-        recordMongo.totalAbsenteeism = record.totalAbsenteeism;
-        recordMongo.totalVotesBlanks = record.totalVotesBlanks;
-        recordMongo.totalVotesNull = record.totalVotesNull;
-        recordMongo.totalVoters = record.totalVoters;
-        recordMongo.candidates = record.candidates;
-        recordMongo.observations = record.observations;
-        recordMongo.recordImage = record.recordImage;
-        recordMongo.isCountFast = record.isCountFast;
-        recordMongo.candidates = record.candidates;
+        buildUpdate(recordMongo, record);
         recordMongo.save();
         return true;
     }catch(error){
@@ -107,21 +129,15 @@ const update = async (record: RecordMongo, id:string):Promise<boolean>  => {
     }
 }
 
-const _validationRecord = async (obj: RecordMongo) => {
-    const existRecord = await getRecordByProperty(obj.idDesk);
-    //console.log(existRecord);
-    if(existRecord){
-        if(!existRecord.isCountFast)
-         throw new Error(ERRORS.E01);
-      return existRecord;
-    }
-    if(!obj.name){
-         throw new Error(ERRORS.E02+" name");
-    }
 
-    if(!validateSumVotes(obj))
-        throw new Error(ERRORS.E08);
+//*** Validate Functions ***//
+const validateParamCount = async (id: string):Promise<RecordMongo[]> => {
+    if(isNil(id))
+       return  await getAllRecords();
+    if(id !== generalEnum.ALL)
+        return await getRecordByProperties(id);
 
+    return  await getAllRecords();
 }
 
 const validateSumVotes = (record: RecordMongo):boolean => {
@@ -134,37 +150,47 @@ const validateSumVotes = (record: RecordMongo):boolean => {
     return true;
 }
 
-export const countAllCountryRecords = async (req: express.Request, res: express.Response) => {
-    console.log("req"+req.params.id);
-    const initialValues = {totalVotes: 0, totalAbsenteeism: 0, totalVotesBlanks: 0, totalVotesNull: 0,
-        firstCandidate: {name:"",totalVotes:0},secondCandidate: {name:"",totalVotes:0}};
-    try{
-        let records : RecordMongo[]
-        if(isNil(req.params.id))
-            records = await getAllRecords();
-        else{
-            if(req.params.id === generalEnum.ALL)
-                records = await getAllRecords();
-            else
-                records = await getRecordByProperties(req.params.id);
+const _validationRecord = async (obj: RecordMongo) => {
+    const existRecord = await getRecordByProperty(obj.idDesk);
+    //console.log(existRecord);
+    if(existRecord){
+        if(!existRecord.isCountFast)
+            throw new Error(ERRORS.E01);
+        return existRecord;
+    }
+    if(!obj.name){
+        throw new Error(ERRORS.E02+" name");
+    }
 
-        }
+    if(!validateSumVotes(obj))
+        throw new Error(ERRORS.E08);
 
-        console.log(records.map(record => record.idProvince));
-        const totalVotes = records.reduce((acc, record) => {
-          return {
-            totalVotes: acc.totalVotes + record.totalVoters,
-            totalAbsenteeism: acc.totalAbsenteeism + record.totalAbsenteeism,
-            totalVotesBlanks: acc.totalVotesBlanks + record.totalVotesBlanks,
-            totalVotesNull: acc.totalVotesNull + record.totalVotesNull,
-            firstCandidate: {name:record.candidates[0].name + " " + record.candidates[0].lastName ,totalVotes: acc.firstCandidate.totalVotes + record.candidates[0].votes},
-            secondCandidate: {name:record.candidates[1].name + " " +  record.candidates[1].lastName,totalVotes: acc.secondCandidate.totalVotes+ record.candidates[1].votes},
-          }
-        }, initialValues);
-        console.log(totalVotes);
-        return res.status(200).json(totalVotes).end();
+}
 
-    }catch(error){
-        return res.status(400).json({ message: error.message });
+
+//*** Build Functions ***//
+const buildUpdate = (originRecord: RecordMongo,record: RecordMongo): RecordMongo => {
+    return {
+        ...originRecord,
+        status : record.status,
+        totalAbsenteeism : record.totalAbsenteeism,
+        totalVotesBlanks : record.totalVotesBlanks,
+        totalVotesNull : record.totalVotesNull,
+        totalVoters : record.totalVoters,
+        candidates : record.candidates,
+        observations : record.observations,
+        recordImage : record.recordImage,
+        isCountFast : record.isCountFast,
+    }
+}
+const buildCountTotal = (acc: TotalCount,record: RecordMongo): TotalCount => {
+    return {
+        totalVotes: acc.totalVotes + record.totalVoters,
+        totalAbsenteeism: acc.totalAbsenteeism + record.totalAbsenteeism,
+        totalVotesBlanks: acc.totalVotesBlanks + record.totalVotesBlanks,
+        totalVotesNull: acc.totalVotesNull + record.totalVotesNull,
+        firstCandidate: {name:record.candidates[0].name + " " + record.candidates[0].lastName ,totalVotes: acc.firstCandidate.totalVotes + record.candidates[0].votes},
+        secondCandidate: {name:record.candidates[1].name + " " +  record.candidates[1].lastName,totalVotes: acc.secondCandidate.totalVotes+ record.candidates[1].votes},
+
     }
 }
