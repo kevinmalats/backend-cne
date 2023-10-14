@@ -10,7 +10,7 @@ import router from './router';
 const app = express();
 const result = dotenv.config();
 const MONGO_URL = result.parsed?.MONGO_URL || '';
-const PORT = result.parsed?.PORT || '8080';
+const PORT = result.parsed?.PORT;
 const DATABASE_NAME = result.parsed?.DATABASE_NAME || '';
 
 app.use(cors({
