@@ -22,6 +22,7 @@ app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
 
+app.use(express.static('public'))
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
