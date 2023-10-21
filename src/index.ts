@@ -13,7 +13,7 @@ dotenv.config();
 const MONGO_URL = process.env.MONGO_URL;
 const PORT = process.env.PORT;
 const DATABASE_NAME = process.env.DATABASE_NAME;
-console.log(MONGO_URL);
+console.log("MonGO URL"+MONGO_URL+DATABASE_NAME);
 app.use(cors({
     credentials: true,
 }));
@@ -43,7 +43,7 @@ try {
 const db = mongoose.connection;
 
 db.on('error', (error) => {
-    console.error('MongoDB connection error:', error);
+    console.error('MongoDB connection error:', error+' '+MONGO_URL+DATABASE_NAME);
 });
 
 db.once('open', () => {
