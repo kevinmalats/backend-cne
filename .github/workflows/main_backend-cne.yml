@@ -20,8 +20,8 @@ jobs:
         with:
           envkey_DEBUG: false
           envkey_VARIABLE: ${{ vars.SOME_ACTION_VARIABLE }}
-          envMONGO_URL: ${{ vars.MONGO_URL }}
-          envDATABASE_NAME: "electoral"
+          envkey_MONGO_URL: ${{ vars.MONGO_URL }}
+          envkey_DATABASE_NAME: "electoral"
           some_other_variable: foobar
           directory: .
           file_name: .env
