@@ -23,7 +23,7 @@ jobs:
           envMONGO_URL: ${{ vars.MONGO_URL }}
           envDATABASE_NAME: "electoral"
           some_other_variable: foobar
-          directory: /
+          directory: .
           file_name: .env
           fail_on_empty: false
           sort_keys: false
