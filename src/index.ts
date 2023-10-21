@@ -31,7 +31,13 @@ server.listen(PORT, () => {
 
 
 mongoose.Promise = Promise;
-mongoose.connect(MONGO_URL+DATABASE_NAME)
+try {
+    mongoose.connect(MONGO_URL+DATABASE_NAME)
+}catch (error) {
+    console.log("Error connecting to database"+MONGO_URL+DATABASE_NAME);
+    console.log(error);
+}
+
 
 //mongoose.connection.on('error', (error: Error) => console.log(error))
 const db = mongoose.connection;
