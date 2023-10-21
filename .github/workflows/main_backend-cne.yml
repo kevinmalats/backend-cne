@@ -18,7 +18,7 @@ jobs:
       - name: Make envfile
         uses: SpicyPizza/create-envfile@v2.0
         with:
-          envkey_MONGO_URL: ${{ vars.MONGO_URL }}
+          envkey_MONGO_URL: "mongodb+srv://favio:ph42wz4NUqGEMxmU@cluster0.htgjmgw.mongodb.net/"
           envkey_DATABASE_NAME: "electoral"
           some_other_variable: foobar
           file_name: .env
