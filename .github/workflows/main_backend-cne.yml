@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 env:
-  MONGO_URL: mongodb+srv://favio:ph42wz4NUqGEMxmU@cluster0.htgjmgw.mongodb.net/
-  DATABASE_NAME: electoral
+  MONGO_URL: "mongodb+srv://favio:ph42wz4NUqGEMxmU@cluster0.htgjmgw.mongodb.net/"
+  DATABASE_NAME: "electoral"
   PORT: 8080
 
 jobs:
