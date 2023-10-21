@@ -12,7 +12,7 @@ on:
 env:
   MONGO_URL: "mongodb+srv://favio:ph42wz4NUqGEMxmU@cluster0.htgjmgw.mongodb.net/"
   DATABASE_NAME: "electoral"
-  PORT: 8080
+  PORT: 8000
 
 jobs:
   build:
@@ -58,6 +58,7 @@ jobs:
         run: unzip release.zip
 
       - name: 'Deploy to Azure Web App'
+        run: echo "$MONGO_URL $DATABASE_NAME"
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
