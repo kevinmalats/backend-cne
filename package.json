@@ -5,8 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "exit 0",
-    "start": "dist/index.js",
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
+    "start": "node dist/index.js",
+    "compile": "ts-node build.ts && tsc",
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "tsc"
   },
