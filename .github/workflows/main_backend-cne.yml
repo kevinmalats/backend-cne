@@ -27,7 +27,7 @@ jobs:
           sort_keys: false
   build:
     runs-on: ubuntu-latest
-      needs: prebuild
+    needs: prebuild
     steps:
       - uses: actions/checkout@v4
 
