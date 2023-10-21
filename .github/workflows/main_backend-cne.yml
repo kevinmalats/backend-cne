@@ -9,10 +9,7 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  MONGO_URL: "mongodb+srv://favio:ph42wz4NUqGEMxmU@cluster0.htgjmgw.mongodb.net/"
-  DATABASE_NAME: "electoral"
-  PORT: 8000
+
 
 jobs:
   build:
@@ -48,6 +45,10 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
+    env:
+      MONGO_URL: ${{vars.MONGO_URL}}
+      DATABASE_NAME: "electoral"
+      PORT: 8000
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
