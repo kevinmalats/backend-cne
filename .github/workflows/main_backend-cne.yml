@@ -21,7 +21,7 @@ jobs:
           envkey_MONGO_URL: "mongodb+srv://favio:ph42wz4NUqGEMxmU@cluster0.htgjmgw.mongodb.net/"
           envkey_DATABASE_NAME: "electoral"
           some_other_variable: foobar
-          directory: runner/work/backend-cne/backend-cne
+          directory: ./
           file_name: .env
           fail_on_empty: true
           sort_keys: false
