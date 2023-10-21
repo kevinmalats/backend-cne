@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 const server = http.createServer(app);
 
 server.listen(PORT, () => {
-    console.log('Server is running in http://localhost:/'+PORT);
+    console.log('Server is running in http://localhost:'+PORT);
 });
 
 
@@ -42,6 +42,10 @@ db.on('error', (error) => {
 
 db.once('open', () => {
     console.log(`Connected to the database: ${DATABASE_NAME}`);
+});
+
+app.use("/",(req, res, next) => {
+   res.send("Hello World");
 });
 
 app.use('/api/v1/', router());
