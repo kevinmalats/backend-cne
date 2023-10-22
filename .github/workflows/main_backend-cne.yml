@@ -19,6 +19,7 @@ jobs:
         uses: SpicyPizza/create-envfile@v2.0
         with:
           envkey_MONGO_URL: "test"
+          envkey_TEST: "test"
           envkey_DATABASE_NAME: "electoral"
           some_other_variable: foobar
           directory: ./
