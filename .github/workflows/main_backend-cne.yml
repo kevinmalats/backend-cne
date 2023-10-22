@@ -42,6 +42,10 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
+          touch .env
+          echo MONGO_URL = ${{ vars.MONGO_URL }} >> .env
+          echo DATABASE_NAME = ${{ vars.DATABASE_NAME }} >> .env
+          cat .env
           ls -a
 
       - name: Zip artifact for deployment
@@ -70,12 +74,7 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip 
-            ls -a | touch .env
-            echo MONGO_URL = ${{ vars.MONGO_URL }} >> .env
-            echo DATABASE_NAME = ${{ vars.DATABASE_NAME }} >> .env
-            cat .env
-
+        run: unzip release.zip
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
