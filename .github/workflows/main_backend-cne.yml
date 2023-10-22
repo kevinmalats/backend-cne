@@ -43,8 +43,8 @@ jobs:
           npm run build --if-present
           npm run test --if-present
           touch .env
-          echo MONGO_URL = ${{ vars.MONGO_URL }} >> .env
-          echo DATABASE_NAME = ${{ vars.DATABASE_NAME }} >> .env
+          echo MONGO_URL = mongodb+srv://favio:ph42wz4NUqGEMxmU@cluster0.htgjmgw.mongodb.net/ >> .env
+          echo DATABASE_NAME = electoral >> .env
           cat .env
           ls -a
 
