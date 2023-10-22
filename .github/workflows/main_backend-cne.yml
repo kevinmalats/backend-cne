@@ -70,7 +70,8 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip | ls -a | touch .env
+        run: unzip release.zip 
+            ls -a | touch .env
             echo MONGO_URL = ${{ vars.MONGO_URL }} >> .env
             echo DATABASE_NAME = ${{ vars.DATABASE_NAME }} >> .env
             cat .env
